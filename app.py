@@ -11,7 +11,7 @@ from flask import Flask, jsonify
 import datetime as dt
 
 # Datebase Setup
-engine = create_engine("sqlite:/Resources/hawii.sqlite", connect_args={'check_same_thread': False}, echo=True)
+engine = create_engine("sqlite:/Resources/hawaii.sqlite", connect_args={'check_same_thread': False}, echo=True)
 # reflect an existing database into a new model
 Base = automap_base()
 # reflect the tables
@@ -61,22 +61,22 @@ def welcome():
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
-  # Docstring
-  """Return a list of previpitations from last year"""
-  # Design a query to retrieve the last 12 months of precipitation data and plot the results 
+  #Docstring
+  """Return a list of precipitations from last year"""
+  #Design a query to retrieve the last 12 months of precipitation data and plot the results 
   max_date = session.query(Measurement.date)order_by(Measurement.date.desc()).first()
 
-  # Get the first element of the tuple
+  #Get the first element of the tuple
   max_date = max_date[0]
 
-  # Calculate the date 1 year ago from today
-  # The days are eqaul 366 so that the first day of the year is included
+  #Calculate the date 1 year ago from today
+  #The days are eqaul 366 so that the first day of the year is included
   year_ago = dt.datetime.strptime(max_date, "%Y-%m-%d") - dt.timedelta(days=366)
 
-  # Perform a query to retrieve the data and precipitation scores
+  #Perform a query to retrieve the data and precipitation scores
   results_precipitation = session.query(Measurement.date, Measurement.prcp)filter(Measurement.date >= year_ago).all()
 
-  # Convert list of tuples inot normal lsit
+  #Convert list of tuples inot normal lsit
   precipitation_dict = dict(results_precipitation)
 
   return jsonify(precipitation_dict)
@@ -87,7 +87,7 @@ def precipitation():
     """Return a JSON list of stations from the dataset."""
     #Query stations
     results_stations = session.query(Measurement.station).group_by(Measurement_station).all()
-    # COnvert list of tuples into normal list
+    # Convert list of tuples into normal list
     station_list = list(np.ravel(results_stations))
     return jsonify(stations_list)
 @app.route("/api/v1.0/tobs")
@@ -98,23 +98,23 @@ def tobs():
   #Design a query to retrieve the last 12 months of precipitation data and plot the results
   max_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
 
-  # Get the first element of the tuple
+  #Get the first element of the tuple
   max_date = max_date[0]
 
-  # Calculate the date 1 year ago from today
-  # The days are equal 366 so that the first day of the year is included
+  #Calculate the date 1 year ago from today
+  #The days are equal 366 so that the first day of the year is included
   year_ago = dt.datetime.strptime(max_date, "%Y-%m-%d") - dt.timedelta(days=366)
-  # Query tobs
+  #Query tobs
   results_tobs = session.query(Measurement.date, Measurement.tobs).filter(Measurement.date >= year_ago).all()
 
-# Convert list of tuples into normal list
+#Convert list of tuples into normal list
 tobs_list = lists(results_tobs)
 
 return jsonify(tobs_list)
 
 @app.route("/api/v1.0/<start>")
 def start(start=None):
-  # Docstring
+  #Docstring
   """Return a JSON list of tmin, tmax, tavg for the dates greater than or equal to the date provided"""
 
   from_start = session.query(Measurement.date), func.min(Measurement.tobs), fun.avg(Measurement.tobs), func.max(Measurement.tobs)).filter(Measurement.date >= start).groupby(Measurement.date).all()
@@ -123,7 +123,7 @@ def start(start=None):
 
 @app.route("/api/v1.0/<start>/<end>")
 def start_end(start=None, end=None):
-  # Docstring
+  #Docstring
   """Return a JSON list of tmin, tmax,tavg for the dates in range of start date and end date inclusive"""
 
   between_dates = session.query(Measurement.date, func.min(Measurement.tobs, func.avg(Measurement.tobs)).filter(Measurement.date >= start).filter(Measurement.date <= end).groupby(Measurement.date).all()
